@@ -21,9 +21,7 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(parlaylib)
 
-add_executable(flow src/syncPar/flow.cpp)
-target_include_directories(flow PRIVATE ${parlaylib_SOURCE_DIR} ${parlaylib_SOURCE_DIR}/include/)
-target_include_directories(flow PRIVATE src/ src/helper/)
-target_link_libraries(flow PRIVATE ${JEMALLOC_LIBS} "-pthread")
-
-add_subdirectory(parser)
+add_executable(parser dimacs_to_csr.cpp)
+target_include_directories(parser PRIVATE ${parlaylib_SOURCE_DIR} ${parlaylib_SOURCE_DIR}/include/)
+target_include_directories(parser PRIVATE src/ src/helper/)
+target_link_libraries(parser PRIVATE ${JEMALLOC_LIBS} "-pthread")
