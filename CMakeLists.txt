@@ -23,7 +23,7 @@ FetchContent_MakeAvailable(parlaylib)
 
 add_executable(flow src/syncPar/flow.cpp)
 target_include_directories(flow PRIVATE ${parlaylib_SOURCE_DIR} ${parlaylib_SOURCE_DIR}/include/)
-target_include_directories(flow PRIVATE src/ src/helper/)
+target_include_directories(flow PRIVATE ${PROJECT_SOURCE_DIR}/include/)
 target_link_libraries(flow PRIVATE ${JEMALLOC_LIBS} "-pthread")
 
 add_subdirectory(parser)

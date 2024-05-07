@@ -6,7 +6,7 @@
 #include <parlay/internal/get_time.h>
 
 #include "BFS.h"
-#include "helper/ligra_light.h"
+#include "ligra_light.h"
 
 // **************************************************************
 // This is a parallel implementation of Goldberg and Tarjan's

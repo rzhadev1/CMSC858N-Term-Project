@@ -4,7 +4,7 @@
 #include <parlay/sequence.h>
 #include <parlay/io.h>
 #include <assert.h>
-
+#include "IO.h"
 using namespace std;
 
 using vertex = int;
@@ -98,22 +98,66 @@ DimacsFlowAdjList readDimacs(const string& filename) {
 
 // convert adj list to compressed sparse row format, and write to output file path
 // pbbs uses these as format
-void writeDimacsFlowToCSR(DimacsFlowAdjList graph, const string& outfp) {
+int writeDimacsFlowToCSR(DimacsFlowAdjList graph, const string& outfp) {
 	AdjList adj = graph.adjacency_list;
 	int n = graph.n; 
 	int m = graph.m; 
 
-	parlay::sequence<int> offset = parlay::tabulate<int>(n+1, [&] (int i) {return -1;});
-	parlay::sequence<int> edges = parlay::tabulate<int>(m, [&] (int i) {return -1;};);
-	parlay::sequence<float> cap = parlay::tabulate<float>(m, [&] (int i) {return 0;});
+	// get vertex out degrees, scan to get prefix list
+	auto outdeg_scan = parlay::scan(parlay::map(adj, [&] (const auto& edge_seq) {return edge_seq.size();}));
+	auto offset = get<0>(outdeg_scan); // get the outdegree prefix sum
+	offset.insert(offset.begin(), 0); // offsets is size n+1; first element should be 0, b/c we encode differences
 	
+	assert(m == get<1>(outdeg_scan)); // total number of edges should be m
+	assert(offset.size() == n+1); // offsets must be size n+1
+	
+	// extract edges
+	// get dst vertex sequence, flatten to sequence, then flatten to a single contiguous sequence
+	auto dst_edges = parlay::flatten(parlay::map(adj, [&] (const auto& edge_seq) {
+		auto dst_seq = parlay::map(edge_seq, [&] (const auto& edge) {return get<0>(edge);});
+		return dst_seq;
+	}));
+	
+	// extract capacities, similar
+	auto cap_edges = parlay::flatten(parlay::map(adj, [] (auto& edge_seq) {
+		auto cap_seq = parlay::map(edge_seq, [&] (const auto& edge) {return get<1>(edge);});
+		return cap_seq;
+	}));
 
+	// all edges collected 
+	assert(dst_edges.size() == m);
+	assert(cap_edges.size() == m);
 	
+	parlay::sequence<int> out1 = parlay::tabulate<int>(2 + n + m, [&] (int i) {return i;});
+	parlay::sequence<int> out2 = parlay::tabulate<int>(m, [&] (int i) {return i;});
+	out1[0] = n; 
+	out2[1] = m; 
+	
+	// write offsets to [2, 2+n)
+	parlay::parallel_for(0, n, [&] (size_t i) {
+		out1[i+2] = offset[i];
+	});
+	
+	// write out edges to out1[2+n, 2+n+m) 
+	// write capacities to out2[0,...,m)
+	parlay::parallel_for(0, n, [&] (size_t i) {
+		size_t o = offset[i];
+		auto v_edges = adj[i];
+
+		for (int j = 0; j < v_edges.size(); j++) { 
+			out1[2 + n + o +j] = get<0>(v_edges[j]);
+			out2[o + j] = get<1>(v_edges[j]);
+		}
+	});
+
+	int r = benchIO::write2SeqToFile("WeightedAdjGraph", out1, out2, outfp.c_str());
+	return r; 
 }
 
 int main() { 
 	string fp = "/Users/richardz/Desktop/CMSC858N/final/term_project/parser/data/dimacs/BL06-camel-sml/BL06-camel-sml.max";
+	string outfp = "/Users/richardz/Desktop/CMSC858N/final/term_project/parser/data/dimacs/BL06-camel-sml/BL06-camel-sml.adj";
 	DimacsFlowAdjList dimacs = readDimacs(fp);
-
+	int r = writeDimacsFlowToCSR(dimacs, outfp);
 	return 0; 
 }
