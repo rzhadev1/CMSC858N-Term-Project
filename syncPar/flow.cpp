@@ -13,10 +13,7 @@
 // **************************************************************
 
 int main(int argc, char* argv[]) {
-	std::string graph_file = "/Users/richardz/Desktop/CMSC858N/final/term_project/data/dimacs/BL06-camel-med/BL06-camel-med.max";
-	// std::string graph_file = "/Users/richardz/Desktop/CMSC858N/final/term_project/data/dimacs/example.max";
-	//std::string graph_file = "/Users/richardz/Desktop/CMSC858N/final/term_project/data/dimacs/BVZ-tsukuba/BVZ-tsukuba0.max";
-	// std::string graph_file = "/Users/richardz/Desktop/CMSC858N/final/term_project/data/dimacs/bone/bone_subxyz_subxy.n26c100.max";
+	std::string graph_file = "BL06-camel-med.max"; 
 	Parser::FlowInstance graph = Parser::readDimacsToFlowInstance(graph_file);
 	//Parser::FlowInstance symm_graph = Parser::symmetrize(graph);
 	

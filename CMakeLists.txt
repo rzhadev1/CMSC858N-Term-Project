@@ -23,9 +23,9 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(parlaylib)
 
 if(NOT EXISTS "${CMAKE_BINARY_DIR}/data")
-	set(CAMEL_SML_FILE "${CMAKE_BINARY_DIR}/data/camel_sml")
-	set(CAMEL_MED_FILE "${CMAKE_BINARY_DIR}/data/camel_med")
-	set(CAMEL_LRG_FILE "${CMAKE_BINARY_DIR}/data/camel_lrg")
+	set(CAMEL_SML_FILE "${CMAKE_BINARY_DIR}/camel_sml")
+	set(CAMEL_MED_FILE "${CMAKE_BINARY_DIR}/camel_med")
+	set(CAMEL_LRG_FILE "${CMAKE_BINARY_DIR}/camel_lrg")
 
 	message(STATUS "Downloading camel-small graph data...")
 	file(DOWNLOAD https://vision.cs.uwaterloo.ca/files/BL06-camel-sml.tbz2 ${CAMEL_SML_FILE}
