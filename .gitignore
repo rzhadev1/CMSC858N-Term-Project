@@ -3,4 +3,6 @@ parser/build
 parser/data/
 .DS_Store
 *.swp
+data/
+.vscode/
 

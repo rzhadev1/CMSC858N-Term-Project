@@ -19,11 +19,11 @@ FetchContent_Declare(
 	GIT_REPOSITORY https://github.com/cmuparlay/parlaylib.git
 	GIT_TAG master
 )
+
 FetchContent_MakeAvailable(parlaylib)
 
-add_executable(flow src/syncPar/flow.cpp)
-target_include_directories(flow PRIVATE ${parlaylib_SOURCE_DIR} ${parlaylib_SOURCE_DIR}/include/)
-target_include_directories(flow PRIVATE ${PROJECT_SOURCE_DIR}/include/)
-target_link_libraries(flow PRIVATE ${JEMALLOC_LIBS} "-pthread")
+find_package(Boost 1.82 COMPONENTS program_options REQUIRED)
 
-add_subdirectory(parser)
+add_subdirectory(src/syncPar)
+add_subdirectory(src/bk)
+

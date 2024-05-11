@@ -87,7 +87,7 @@ struct max_flow {
   void relabel(vertex_id ui) {
     vertex& u = vertices[ui];
     u.current = 0; // reset edge pointer to start
-    int min_neighbor = reduce(delayed_map(u.edges, [&] (edge& e) {
+    int min_neighbor = parlay::reduce(parlay::delayed_map(u.edges, [&] (edge& e) {
                                 return (e.flow < e.capacity) ? vertices[e.v].label : n;}),
                               parlay::minimum<int>());
     u.new_label = std::min(n, min_neighbor + 1);

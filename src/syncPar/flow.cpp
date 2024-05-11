@@ -5,39 +5,28 @@
 #include <parlay/primitives.h>
 #include <parlay/sequence.h>
 #include <parlay/internal/get_time.h>
-
+#include "parser.h"
 #include "flow.h"
-#include "graphIO.h"
-#include "graph_utils.h"
 
 // **************************************************************
 // Driver
 // **************************************************************
 
 int main(int argc, char* argv[]) {
-	using vertex = int;
-	using utils = graph_utils<vertex_id>;
-	using vertices = parlay::sequence<vertex>;
-
-	char *graph_file = "/Users/richardz/Desktop/CMSC858N/final/term_project/parser/data/dimacs/BL06-camel-sml/BL06-camel-sml.adj";
+	std::string graph_file = "/Users/richardz/Desktop/CMSC858N/final/term_project/data/dimacs/BL06-camel-sml/BL06-camel-sml.max";
+	// std::string graph_file = "/Users/richardz/Desktop/CMSC858N/final/term_project/data/dimacs/example.max";
+	//std::string graph_file = "/Users/richardz/Desktop/CMSC858N/final/term_project/data/dimacs/BVZ-tsukuba/BVZ-tsukuba2.max";
+	Parser::FlowInstance graph = Parser::readDimacsToFlowInstance(graph_file);
+	//Parser::FlowInstance symm_graph = Parser::symmetrize(graph);
 	
-	ifstream graph(graph_file);
-
-	auto flowgraph = readFlowGraphDimacs(graph);
-
-	//auto graph<vertices, weight, edges> = benchIO::readWghGraphFromFile(graph_file);
-	
-	/*
-	int n = graph.size();
+	int n = graph.n;
 	int result;
-	//parlay::internal::timer t("Time");
+	parlay::internal::timer t("Time");
 	for (int i=0; i < 2; i++) {
-		result = maximum_flow(graph, 0, 1);
-		//t.next("push_relabel_max_flow");
+		result = maximum_flow(graph.adj_list, graph.source, graph.sink);
+		t.next("push_relabel_max_flow");
 	}
 
-
 	std::cout << "max flow: " << result << std::endl;
-	*/
 	return 0;
 }
