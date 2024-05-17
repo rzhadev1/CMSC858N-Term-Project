@@ -8,28 +8,10 @@
 #include "BFS.h"
 #include "ligra_light.h"
 
-// **************************************************************
-// This is a parallel implementation of Goldberg and Tarjan's
-// push-relabel algorithm for max flow from:
-//   Andrew V. Goldberg and Robert E. Tarjan.
-//   A New Approach to the Maximum-Flow Problem.
-//   JACM 1988.
-//
-// In particular we use the variant described in:
-//   Niklas Baumstark, Guy E. Blelloch, and Julian Shun
-//   Efficient Implementation of a Synchronous Parallel Push-Relabel Algorithm.
-//   ESA 2015
-//
-// This variant uses global relabeling with bfs every once in a while
-// and synchronous push-relabel rounds over all active vertices using
-// shadow copies of the excess and label to avoid race conditions.
-// No locks are required.
-//
-//**************************************************************
-
 // the input format for graphs, i.e. adjacency sequence of neighbor-weight pairs
 // if there is an edge from u to v, there must be one from v to u,
 // although the capacities can differ or even be zero in one direction.
+
 using vertex_id = int;
 using weight = int;
 using edges = parlay::sequence<std::pair<vertex_id,weight>>;
@@ -140,6 +122,7 @@ struct max_flow {
     }
     tt.next("find max flow");
     check_correctness();
+
     return vertices[t].excess;
   }
 
@@ -228,7 +211,6 @@ struct max_flow {
     // initialize excess of source to "infinity"
     vertices[s].excess = std::numeric_limits<int>::max();
   }
-
   // checks at completion :
   //   o flow constraints (excess = flow-in - flow-out)
   //   o capacity constraints (no edge has more flow than capacity)
