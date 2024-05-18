@@ -106,6 +106,6 @@ FlowInstance readDimacsToFlowInstance(const std::string& filename) {
     flow.m = m; 
     flow.source = S; 
     flow.sink = T; 
-    flow.adj_list = dimacs_adj;
+    flow.wgh_graph = dimacs_adj;
     return flow;
 }
