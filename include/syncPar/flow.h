@@ -43,8 +43,10 @@ struct max_flow {
 
   parlay::sequence<vertex> vertices;
   parlay::sequence<vertex_id> active;
-  int n, m;
-  int s, t;
+  int n;
+  int m; 
+  int s; 
+  int t;
   std::chrono::duration<double> relabel_time;
 
   bool push(vertex_id ui) {

@@ -53,61 +53,14 @@ struct max_flow {
   std::chrono::duration<double> relabel_time;
 
   bool push(vertex_id ui) {
-    vertex& u = vertices[ui];
-    while (u.excess > 0 && u.current < u.edges.size()) {
-      edge& e = u.edges[u.current];
-      vertex& v = vertices[e.v];
-      if (e.flow < e.capacity && u.label > v.label) {
-        int release = std::min(e.capacity - e.flow, u.excess);
-        if (release == e.capacity - e.flow) u.current++; // saturating
-        e.flow += release;
-        e.partner->flow -= release;
-        u.excess -= release;
-        v.new_excess += release; // atomic write with add
-        push_active(u.pushes, e.v);
-      } else u.current++;
-    }
-    if (u.excess > 0) push_active(u.pushes, ui);
-    return u.current == u.edges.size(); // if true, need to relabel
+    
   }
 
   void relabel(vertex_id ui) {
-    vertex& u = vertices[ui];
-    u.current = 0; // reset edge pointer to start
-    int min_neighbor = parlay::reduce(parlay::delayed_map(u.edges, [&] (edge& e) {
-                                return (e.flow < e.capacity) ? vertices[e.v].label : n;}),
-                              parlay::minimum<int>());
-    u.new_label = std::min(n, min_neighbor + 1);
   }
 	
 	// process a single vertex in parallel
-  void push_relabel() {
-		
-		auto highest_label = parlay::max_element(parlay::map(active, [&] (vertex_id ui) {
-			return vertices[ui].label;
-		}));
-
-
-		/*
-    // do push and relabel in parallel for each active vertex
-    parlay::for_each(active, [&] (vertex_id ui) {
-      vertex& u = vertices[ui];
-      if (u.label < n && u.label > 0 && push(ui))
-        relabel(ui);});
-
-    // update principle copies of variables, returning new active vertices
-    active = parlay::flatten(parlay::map(active, [&] (vertex_id ui) {
-      vertex& u = vertices[ui];
-      u.label = u.new_label;
-      for (vertex_id vi : u.pushes) {
-        vertex&v = vertices[vi];
-        v.excess += v.new_excess;
-        v.new_excess = 0;
-        v.pushed = false;
-      }
-      return std::move(u.pushes);}));
-  
-		*/
+  void push_relabel() {  
 	}
 
   int compute_max_flow(const weighted_graph& G, vertex_id source, vertex_id sink) {
@@ -143,10 +96,6 @@ struct max_flow {
 
   // pushes active for next round onto local queue
   void push_active(parlay::sequence<vertex_id>& a, vertex_id vi) {
-    vertex& v = vertices[vi];
-    bool flag = false;
-    if (!v.pushed && v.pushed.compare_exchange_strong(flag,true))
-      a.push_back(vi);
   }
 
 
@@ -198,33 +147,6 @@ struct max_flow {
   }
 
   void initialize(const weighted_graph& G) {
-    parlay::internal::timer tt("initialize", false);
-    n = G.size();
-    m = parlay::reduce(parlay::map(G, parlay::size_of{}));
-
-    // create augmented vertices and edges from graph
-    vertices = parlay::sequence<vertex>(n);
-    parlay::parallel_for(0, n, [&] (int u) {
-      vertices[u].edges = parlay::tabulate(G[u].size(), [&] (int i) {
-        auto [v, w] = G[u][i];
-        return edge{v, 0, w, 0, nullptr};});});
-    tt.next("create graph");
-
-    // Cross link the edges
-    auto x = parlay::flatten(parlay::tabulate(n, [&] (vertex_id u) {
-      return parlay::delayed_map(vertices[u].edges, [&, u] (edge& e) {
-        auto p = std::pair{std::min(u,e.v), std::max(u,e.v)};
-        return std::pair{p, &e};});}));
-    auto y = sort(std::move(x), [&] (auto a, auto b) {return a.first < b.first;});
-    parlay::parallel_for(0, m/2, [&] (long i) {
-      y[2*i].second->partner = y[2*i+1].second;
-      y[2*i].second->partner_capacity = y[2*i+1].second->capacity;
-      y[2*i+1].second->partner = y[2*i].second;
-      y[2*i+1].second->partner_capacity = y[2*i].second->capacity;});
-    tt.next("cross link");
-
-    // initialize excess of source to "infinity"
-    vertices[s].excess = std::numeric_limits<int>::max();
   }
   // checks at completion :
   //   o flow constraints (excess = flow-in - flow-out)

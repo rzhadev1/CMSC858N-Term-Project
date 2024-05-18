@@ -23,9 +23,9 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(parlaylib)
 
 # download the dataset
-if(NOT EXISTS "${CMAKE_BINARY_DIR}/data/BL06-camel-sml.max")
+if(NOT EXISTS "${CMAKE_BINARY_DIR}/BL06-camel-sml.max")
 
-	set(CAMEL_SML_FILE "${CMAKE_BINARY_DIR}/data/BL06-camel-sml.tbz2")
+	set(CAMEL_SML_FILE "${CMAKE_BINARY_DIR}/BL06-camel-sml.tbz2")
 	message(STATUS "Downloading camel-small graph data...")
 
 	file(DOWNLOAD https://vision.cs.uwaterloo.ca/files/BL06-camel-sml.tbz2 ${CAMEL_SML_FILE}
@@ -52,5 +52,5 @@ file(REMOVE ${CAMEL_SML_FILE})
 endif()
 
 find_package(Boost 1.82 COMPONENTS program_options REQUIRED)
-
 add_subdirectory(src)
+add_subdirectory(parser)
