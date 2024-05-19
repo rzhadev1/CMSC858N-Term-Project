@@ -88,7 +88,6 @@ FlowInstance readDimacsToFlowInstance(const std::string& filename) {
 
         else {
             std::cout << "invalid line!: " << line << std::endl; 
-            exit(1);
         }
     }
 		
