@@ -1,4 +1,5 @@
 # CMSC858N-Term-Project
+This is an implementation of parallel push relabel max flow based on the paper by Baumstark et. al: (arxiv)[https://arxiv.org/abs/1507.01926].  
 
 ## Requirements
 Boost 1.82.0, cmake 3.14, c++17. 
