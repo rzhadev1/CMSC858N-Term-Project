@@ -7,6 +7,9 @@
 #include <parlay/io.h>
 #include "parser.h"
 
+
+using adj_mat = parlay::sequence<parlay::sequence<int>>;
+
 // Read the dimacs file to a parlay adjacency list representation
 FlowInstance readDimacsToFlowInstance(const std::string& filename) {
     auto str = parlay::file_map(filename);
@@ -16,9 +19,10 @@ FlowInstance readDimacsToFlowInstance(const std::string& filename) {
     int n = 0, m = 0;  // number of vertices, number of edges
     
     weighted_graph dimacs_adj;
-    
-    using edge_key = std::pair<vertex_id, vertex_id>; // map the (u,v) edge to its capacity
-    std::map<edge_key, weight> edge_map; 
+    adj_mat dimacs_mat;
+
+    //using edge_key = std::pair<vertex_id, vertex_id>; // map the (u,v) edge to its capacity
+    //std::map<edge_key, weight> edge_map; 
 
     // parse all the comments and problem statement line from dimacs
     for(const auto& line : lines) {
@@ -38,6 +42,11 @@ FlowInstance readDimacsToFlowInstance(const std::string& filename) {
             
             // for each vertex, create an empty sequence of edges
             dimacs_adj = parlay::tabulate<edges>(n, [&] (size_t i) {return edges();});
+
+						// for each vertex, create an empty sequence of size n
+						dimacs_mat = parlay::tabulate<parlay::sequence<int>>(n, [&] (int i) {
+							return parlay::sequence<int>(n, -1); // init to all -1
+						});
         }
 
         else if(type == 'n') { // specify source/sink
@@ -67,7 +76,14 @@ FlowInstance readDimacsToFlowInstance(const std::string& filename) {
             // this line specifies a (u,v) edge. we only update capacities for 
             // (u,v) edges. all reverse edges are assumed to have 0 capacity until 
             // we see the reverse edge as (u,v)
+						
+						dimacs_mat[src][dst] = cap;
 
+						if(dimacs_mat[dst][src] == -1) {
+							dimacs_mat[dst][src] = 0;
+						}
+
+						/*
             // is edge (u,v) not in the graph?
             if(edge_map.find({src, dst}) == edge_map.end()) {
                 edge_map.insert({{src, dst}, cap}); // insert into edge map
@@ -82,6 +98,7 @@ FlowInstance readDimacsToFlowInstance(const std::string& filename) {
             if(edge_map.find({dst, src}) == edge_map.end()) { 
                 edge_map.insert({{dst, src}, 0}); // insert into edge map with 0 capacity
             }
+						*/
         }
 
         else {
@@ -89,9 +106,21 @@ FlowInstance readDimacsToFlowInstance(const std::string& filename) {
             exit(1);
         }
     }
+		
 
-    // read edge map and construct weighted graph
-    //std::cout << "edge map: " << std::endl;
+		// insert all n^2 edges in parallel
+		// to avoid data races, each thread only inserts for their assigned vertex
+		for(vertex_id src = 0; src < n; src++) {
+			for(vertex_id dst = 0; dst < n; dst++) {
+				int cap = dimacs_mat[src][dst];
+				if(cap >= 0) {
+					//std::cout << "src: " << src << " dst: " << dst << " cap: " << cap << std::endl;
+					dimacs_adj[src].push_back({dst, cap}); 
+				}
+			}
+		}
+
+		/*
     for(auto& edge : edge_map) {
         vertex_id src = std::get<0>(edge.first); 
         vertex_id dst = std::get<1>(edge.first);
@@ -100,6 +129,7 @@ FlowInstance readDimacsToFlowInstance(const std::string& filename) {
         dimacs_adj[src].push_back({dst, cap});
         //std::cout << std::get<0>(edge.first) << " " << std::get<1>(edge.first) << " " << edge.second << std::endl;	
     }
+		*/
 
     FlowInstance flow;
     flow.n = n; 

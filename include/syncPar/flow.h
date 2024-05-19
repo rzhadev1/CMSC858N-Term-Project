@@ -1,15 +1,11 @@
 #ifndef _SYNC_PAR_H
 #define _SYNC_PAR_H
-#include <chrono>
-#include <limits>
 #include <atomic>
 
 #include <parlay/primitives.h>
 #include <parlay/sequence.h>
-#include <parlay/internal/get_time.h>
 
 #include "parser.h"
-#include "BFS.h"
 
 using vertex_id = int; 
 using weight = int; 
