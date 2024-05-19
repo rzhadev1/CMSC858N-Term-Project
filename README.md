@@ -1,7 +1,8 @@
 # CMSC858N-Term-Project
+This is an implementation of parallel push relabel max flow based on the paper by Baumstark et. al: https://arxiv.org/abs/1507.01926  
 
 ## Requirements
-Boost 1.82.0, cmake 3.14, c++17. 
+Boost 1.82.0, cmake 3.14, c++17. The boost requirement is only needed for running the Boykov-Kolmogorov algorithm which is used as a sequential baseline. 
 
 ## Usage 
 ```
