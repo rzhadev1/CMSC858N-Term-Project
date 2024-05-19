@@ -1,8 +1,5 @@
 #include "flow.h"
-
-// TODO: 
-// - switch to something sequential when active set is small?
-// - probably should get off of using map in the parser, really slow on these big graphs
+#include <parlay/internal/get_time.h>
 
 void FIFOSyncParPR::init(FlowInstance fi) { 
 	n = fi.n; 
@@ -164,16 +161,18 @@ void FIFOSyncParPR::global_relabel() {
 }
 
 int FIFOSyncParPR::solve(FlowInstance fi) {
+
+	parlay::internal::timer timer("Time");
 	FIFOSyncParPR flow = FIFOSyncParPR(fi);
+	timer.next("init graph");
 
 	flow.global_relabel(); // get starting labels
 	flow.workSinceLastGR = 0;
 
 	int iters = 0;
+
 	while (flow.active.size() > 0) { 
 
-		//std::cout << flow.active.size() << std::endl;
-		//std::cout << flow.vertices[flow.sink].excess << std::endl;
 		// try to push on all active vertices, relabel if needed
 		parlay::for_each(flow.active, [&] (vertex_id ui) {
 			Vertex& u = flow.vertices[ui];
@@ -221,7 +220,8 @@ int FIFOSyncParPR::solve(FlowInstance fi) {
 	}
 
 	flow.check_correctness();
-
+	
+	timer.next("max flow");
 	// note: this is only a maximum preflow, and not a max flow 
 	// this is sufficient to derive a min cut, which can be used to find the 
 	// max flow if needed

@@ -19,7 +19,6 @@ FlowInstance readDimacsToFlowInstance(const std::string& filename) {
     int n = 0, m = 0;  // number of vertices, number of edges
     
     weighted_graph dimacs_adj;
-    // adj_mat dimacs_mat;
 
     using edge_key = std::pair<vertex_id, vertex_id>; // map the (u,v) edge to its capacity
     std::map<edge_key, weight> edge_map; 
@@ -42,11 +41,6 @@ FlowInstance readDimacsToFlowInstance(const std::string& filename) {
             
             // for each vertex, create an empty sequence of edges
             dimacs_adj = parlay::tabulate<edges>(n, [&] (size_t i) {return edges();});
-
-						// for each vertex, create an empty sequence of size n
-						// dimacs_mat = parlay::tabulate<parlay::sequence<int>>(n, [&] (int i) {
-						// 	return parlay::sequence<int>(n, -1); // init to all -1
-						// });
         }
 
         else if(type == 'n') { // specify source/sink
@@ -65,7 +59,6 @@ FlowInstance readDimacsToFlowInstance(const std::string& filename) {
         }
 
         else if(type == 'a') {
-            
             // we must have sequences initialized to get here
             
             vertex_id src = parlay::chars_to_int(tokens[1]) - 1;
@@ -76,14 +69,6 @@ FlowInstance readDimacsToFlowInstance(const std::string& filename) {
             // this line specifies a (u,v) edge. we only update capacities for 
             // (u,v) edges. all reverse edges are assumed to have 0 capacity until 
             // we see the reverse edge as (u,v)
-						
-						/*
-						dimacs_mat[src][dst] = cap;
-
-						if(dimacs_mat[dst][src] == -1) {
-							dimacs_mat[dst][src] = 0;
-						}
-						*/
 
             // is edge (u,v) not in the graph?
             if(edge_map.find({src, dst}) == edge_map.end()) {
@@ -113,7 +98,6 @@ FlowInstance readDimacsToFlowInstance(const std::string& filename) {
         weight cap = edge.second;
         
         dimacs_adj[src].push_back({dst, cap});
-        //std::cout << std::get<0>(edge.first) << " " << std::get<1>(edge.first) << " " << edge.second << std::endl;	
     }
 
     FlowInstance flow;

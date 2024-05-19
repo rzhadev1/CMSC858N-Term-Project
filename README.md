@@ -33,6 +33,10 @@ curl -O (link to .tbz2 file)
 tar -xvjf (data)
 ```
 
+## TODO 
+- can make parser more efficient, currently uses a map to store used edges
+- optimization for small active sets? (besides using ligra for BFS)
+
 
 
 

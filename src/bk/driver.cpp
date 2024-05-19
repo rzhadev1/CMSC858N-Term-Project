@@ -51,11 +51,12 @@ int main(int argc, char* argv[])
 		std::vector<long> distance(num_vertices(g));
 		
 		parlay::internal::timer timer("Time");
-		long flow = boykov_kolmogorov_max_flow(g ,s, t);
-		timer.next("bk time"); 
 
-		std::cout << "c  The total flow:" << std::endl;
-		std::cout << "s " << flow << std::endl << std::endl;
+		for(int i = 0; i < 3; i++) {
+			std::cout << "iteration: " << i << std::endl;
+			long flow = boykov_kolmogorov_max_flow(g ,s, t);
+			timer.next("bk time"); 
+		}
 	}
 	return EXIT_SUCCESS;
 }
