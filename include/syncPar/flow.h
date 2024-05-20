@@ -29,9 +29,8 @@ class FIFOSyncParPR {
 		std::atomic<bool> isDiscovered; // whether or not this vertex was added to the active set
 		int work; // the amount of "work" (pushes) done by this vertex
 		int current; // the last edge that was pushed on by this vertex
-
-		parlay::sequence<Edge> edges;
 		int outDegree; // the number of outgoing edges at this vertex
+		parlay::sequence<Edge> edges;
 		parlay::sequence<vertex_id> discoveredVertices; // used in global relabeling/pushs
 		
 		Vertex() : label(0), newlabel(0), excess(0), addedExcess(0), current(0), isDiscovered(false), work(0) {}
