@@ -22,6 +22,8 @@ struct FlowInstance {
 };
 
 // Read the dimacs file to a parlay adjacency list representation
-FlowInstance readDimacsToFlowInstance(const std::string& filename);
+FlowInstance readDimacsToFlowInstanceSeq(const std::string& filename);
+
+FlowInstance readDimacsToFlowInstanceParHashMap(const std::string& filename);
 
 #endif
