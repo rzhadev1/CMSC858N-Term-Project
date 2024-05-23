@@ -19,7 +19,7 @@ int main(int argc, char* argv[])
   using namespace boost;
 
 
-	auto usage = "Usage: syncPar <filename>";
+	auto usage = "Usage: bk <filename>";
 
 	if(argc != 2) std::cout << usage << std::endl;
 	else {
