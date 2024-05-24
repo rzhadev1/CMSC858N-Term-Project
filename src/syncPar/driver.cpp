@@ -23,13 +23,22 @@ int main(int argc, char* argv[]) {
 		std::string graph_file = argv[1]; 
 		{
 			std::cout << "Sequential parsing:" << std::endl;
-			FlowInstance flow_problem = readDimacsToFlowInstanceSeq(graph_file);
+			//FlowInstance flow_problem = readDimacsToFlowInstanceSeq(graph_file);
 		}
 
 		{
-
 			std::cout << "Parallel parsing:" << std::endl;
-			FlowInstance flow_problem = readDimacsToFlowInstanceParHashMap(graph_file);
+			//FlowInstance flow_problem = readDimacsToFlowInstanceParHashMap(graph_file);
+		}
+
+		{
+			std::cout << "Seq hash table:" << std::endl;
+			//FlowInstance flow_problem = readDimacsToFlowInstanceSeqHashTable(graph_file);
+		}
+
+		{
+			std::cout << "Seq opt" << std::endl;
+			FlowInstance flow_problem = readDimacsToFlowInstanceSeqOpt(graph_file);
 		}
 		/*
 		for (int i = 0; i < 3; i++) {

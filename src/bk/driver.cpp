@@ -18,7 +18,6 @@ int main(int argc, char* argv[])
 {
   using namespace boost;
 
-
 	auto usage = "Usage: bk <filename>";
 
 	if(argc != 2) std::cout << usage << std::endl;
@@ -45,12 +44,13 @@ int main(int argc, char* argv[])
 				residual_capacity = get(edge_residual_capacity, g);
 		property_map < Graph, edge_reverse_t >::type rev = get(edge_reverse, g);
 		Traits::vertex_descriptor s, t;
-		read_dimacs_max_flow(g, capacity, rev, s, t, in);
 
+		parlay::internal::timer timer("Time");
+		read_dimacs_max_flow(g, capacity, rev, s, t, in);
+		timer.next("parse");
 		std::vector<default_color_type> color(num_vertices(g));
 		std::vector<long> distance(num_vertices(g));
 		
-		parlay::internal::timer timer("Time");
 
 		for(int i = 0; i < 3; i++) {
 			std::cout << "iteration: " << i << std::endl;
