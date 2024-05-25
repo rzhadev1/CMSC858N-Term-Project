@@ -291,7 +291,6 @@ FlowInstance readDimacsToFlowInstanceSeqHashTable(const std::string& filename) {
 
 FlowInstance readDimacsToFlowInstanceSeqOpt(const std::string& filename) {
 
-				
 		parlay::internal::timer timer("time");
     auto str = parlay::file_map(filename);
     timer.next("file map"); 
@@ -304,7 +303,6 @@ FlowInstance readDimacsToFlowInstanceSeqOpt(const std::string& filename) {
 
     std::map<edge, weight> edge_map; 
 
-		// TODO: 
     for(const auto& pline : lines) {
 				const char* line = pline.data();
         char type = line[0];
@@ -342,7 +340,9 @@ FlowInstance readDimacsToFlowInstanceSeqOpt(const std::string& filename) {
 
 					auto e1 = edge_map.insert({{src, dst}, cap});
 					auto e2 = edge_map.insert({{dst, src}, 0});
-
+					
+					// if the edge already exists, 
+					// then set the capacity instead
 					if(e1.second == false) {
 						e1.first -> second = cap;
 					}
