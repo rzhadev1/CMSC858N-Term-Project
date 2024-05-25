@@ -225,6 +225,8 @@ int FIFOSyncParPR::solve(FlowInstance fi) {
 	// note: this is only a maximum preflow, and not a max flow 
 	// this is sufficient to derive a min cut, which can be used to find the 
 	// max flow if needed
+	std::cout << flow.vertices[flow.sink].excess << std::endl;
+	std::cout << flow.vertices[flow.sink].edges.size() << std::endl;
 	return flow.vertices[flow.sink].excess;
 }
 

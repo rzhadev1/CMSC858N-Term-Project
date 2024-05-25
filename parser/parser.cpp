@@ -39,10 +39,10 @@ FlowInstance readDimacsToFlowInstance(const std::string& filename) {
         	std::sscanf(line, "n %d %c", &id, &which);
 
 					if(which == 's') {
-						S = id; 
+						S = id - 1; 
 					}
 					else if(which == 't') {
-						T = id;
+						T = id - 1;
 					}
 				}
 
