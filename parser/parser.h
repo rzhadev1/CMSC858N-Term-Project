@@ -12,6 +12,7 @@ using vertex_id = int;
 using weight = int; 
 using edges = parlay::sequence<std::pair<vertex_id, weight>>; 
 using weighted_graph = parlay::sequence<edges>;
+using edge = std::pair<vertex_id, vertex_id>;
 
 struct FlowInstance {
 	int n; // number of nodes
